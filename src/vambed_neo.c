@@ -491,7 +491,7 @@ static void usage(FILE *f, const char *prog)
             "usage: %s [options]\n"
             "  -b, --bind IP          listen address (default 0.0.0.0)          env VAMBED_NEO_BIND\n"
             "  -p, --base-port N      control port; stream N uses base+N (10100) env VAMBED_NEO_BASE_PORT\n"
-            "  -m, --max-streams N    concurrent streams (default 16)            env VAMBED_NEO_MAX_STREAMS\n"
+            "  -m, --max-streams N    concurrent streams (default 64)            env VAMBED_NEO_MAX_STREAMS\n"
             "  -P, --peer IP          accept only this peer (repeatable; default any)\n"
             "                                                                     env VAMBED_NEO_PEERS (space separated)\n"
             "  -c, --codecs LIST      codecs offered by CAPS / extended opens, e.g. 1,2,3,4\n"
@@ -630,7 +630,7 @@ int main(int argc, char **argv)
     setvbuf(stdout, NULL, _IOLBF, 0);
     cfg.bind.s_addr = htonl(INADDR_ANY);
     cfg.base_port = 10100;
-    cfg.max_streams = 16;
+    cfg.max_streams = 64;
     cfg.mask = vn_codec_mask();
     parse_env();
     parse_args(argc, argv);

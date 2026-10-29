@@ -48,5 +48,5 @@ COPY --from=build /usr/local/bin/vambed-neo /usr/local/bin/vambed-neo
 COPY LICENSE NOTICE README.md /usr/local/share/doc/vambed-neo/
 RUN ldconfig && useradd --system --no-create-home --shell /usr/sbin/nologin vambed-neo
 USER vambed-neo
-EXPOSE 10100-10116/udp
+EXPOSE 10100-10164/udp
 ENTRYPOINT ["/usr/local/bin/vambed-neo"]

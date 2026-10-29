@@ -9,7 +9,7 @@ sizes and decoding every slot. Reports length, level and envelope
 correlation against the source, and (with --morse) whether 20 wpm Morse survives PCM -> X -> PCM.
 Informational: audio quality is not a goal of vambed-neo.
 
-usage: DVTESTSET=<dv-testset checkout> scripts/roundtrip.py --addr 192.0.2.10 [--morse]
+usage: DVTESTSET=<dv-testset checkout> scripts/roundtrip.py --addr 192.0.2.10 [--morse] [--speech]
 """
 import argparse
 import math
@@ -42,12 +42,60 @@ def frames_of(pcm, size=320):
     return [pcm[i:i + size] for i in range(0, len(pcm), size)]
 
 
+SPEECH_IDS = [("bdl", "arctic_a0001"), ("bdl", "arctic_a0002"),
+              ("slt", "arctic_a0001"), ("slt", "arctic_a0002")]
+SINGLE_MIN = 0.88
+TANDEM_MIN = 0.84
+
+
+def speech_regression(dvtestset, run):
+    """Mean STOI of four ARCTIC utterances per path: PCM > X > PCM for
+    every codec, PCM > X > Y > PCM for every ordered pair (Y from X in one
+    stream). Skips with a reason when the corpus is missing."""
+    from dvtest.audio import speech
+    root = os.path.join(dvtestset or ".", ".cache", "speech", "8k")
+    paths = [os.path.join(root, spk, uid + ".raw") for spk, uid in SPEECH_IDS]
+    missing = [p for p in paths if not os.path.isfile(p)]
+    if missing:
+        print("speech: SKIP, corpus not found (%s); run dv-testset scripts/pre-fetch-speech.sh"
+              % missing[0])
+        return True
+    gap = b"\0" * 2 * 2400
+    src, spans = b"", []
+    for (spk, uid), path in zip(SPEECH_IDS, paths):
+        data = open(path, "rb").read()
+        src += gap
+        spans.append((spk + "/" + uid, len(src) // 2, len(data) // 2))
+        src += data
+    src += gap
+    ok = True
+
+    def check(label, out, minimum):
+        rows = speech.score_stream(src, out, spans)[1]
+        mean = sum(r[1] for r in rows) / len(rows)
+        good = mean >= minimum
+        print("speech %-26s STOI %.3f (min %.2f)  %s" % (label, mean, minimum, "ok" if good else "FAIL"))
+        return good
+
+    for x in (1, 2, 3, 4):
+        coded = run(5, [x], frames_of(src))[x]
+        ok &= check("PCM>%s>PCM" % NAMES[x], b"".join(run(x, [5], coded)[5]), SINGLE_MIN)
+        for y in (1, 2, 3, 4):
+            if y != x:
+                other = run(x, [y], coded)[y]
+                ok &= check("PCM>%s>%s>PCM" % (NAMES[x], NAMES[y]),
+                            b"".join(run(y, [5], other)[5]), TANDEM_MIN)
+    return ok
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--addr", required=True)
     ap.add_argument("--port", type=int, default=10100)
     ap.add_argument("--dvtestset", default=os.environ.get("DVTESTSET", ""))
     ap.add_argument("--morse", action="store_true")
+    ap.add_argument("--speech", action="store_true",
+                    help="tandem speech STOI regression (dv-testset .cache/speech/8k)")
     args = ap.parse_args()
     if args.dvtestset:
         sys.path.insert(0, args.dvtestset)
@@ -151,6 +199,8 @@ def main():
             result = morse.check(text, morse.decode(back))
             print("morse 20 wpm PCM>%s>PCM: %s cer %.3f got %r"
                   % (NAMES[x], "exact" if result["exact"] else "differs", result["cer"], result["got"]))
+    if args.speech:
+        all_ok &= speech_regression(args.dvtestset, run)
     return 0 if all_ok else 1
 
 

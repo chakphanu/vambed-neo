@@ -33,7 +33,7 @@ publishing ports through NAT.
 |---|---|---|---|
 | `-b, --bind IP` | `VAMBED_NEO_BIND` | 0.0.0.0 | listen address |
 | `-p, --base-port N` | `VAMBED_NEO_BASE_PORT` | 10100 | control port; stream N uses base+N |
-| `-m, --max-streams N` | `VAMBED_NEO_MAX_STREAMS` | 16 | concurrent streams (1..256), then BUSY |
+| `-m, --max-streams N` | `VAMBED_NEO_MAX_STREAMS` | 64 | concurrent streams (1..256), then BUSY |
 | `-P, --peer IP` | `VAMBED_NEO_PEERS` | any | accept only these peers (repeatable / space separated) |
 | `-c, --codecs LIST` | `VAMBED_NEO_CODECS` | 1,2,3,4,5 | codecs offered by CAPS and extended opens |
 | `-L, --legacy-only` | `VAMBED_NEO_LEGACY_ONLY=1` | off | behave like a pre-extension ambed: no CAPS reply, 24 B opens ignored |
@@ -86,7 +86,7 @@ Control port (UDP 10100):
   data for 3 s is closed too.
 
 Data ports: stream ids run 1..max-streams, so the transcoder uses UDP
-base+1 .. base+max-streams (10101-10116 by default) next to the control
+base+1 .. base+max-streams (10101-10164 by default) next to the control
 port; open them all when firewalling or publishing. A data port accepts
 requests only from the IP that opened the stream (and, like the control
 port, only from `--peer` addresses when that list is set).
@@ -111,7 +111,14 @@ TRANSCODER_IMAGE=vambed-neo:local python3 -m pytest -p no:cacheprovider -m wire 
 `scripts/roundtrip.py` (needs `DVTESTSET=<dv-testset checkout>`) runs
 PCM -> X -> every other codec -> PCM and the legacy reply layouts against a
 running instance and prints level and envelope correlation; `--morse` adds
-a 20 wpm Morse check through each codec.
+a 20 wpm Morse check through each codec. `--speech` adds a speech STOI
+regression over four CMU ARCTIC utterances from dv-testset's corpus
+(`.cache/speech/8k`, fetched by its `scripts/pre-fetch-speech.sh`; skipped
+with a reason when absent): every single hop PCM -> X -> PCM must reach
+STOI 0.88 and every tandem PCM -> X -> Y -> PCM 0.84 (measured 0.90-0.94
+and 0.86-0.89). Keyed tones are not a tandem criterion: the AMBE encoders
+code the edge frames of a 20 wpm Morse element as voice, which a second
+AMBE hop renders as an extra mark (12 wpm survives every tandem).
 
 The dv-testset docker rig runs it as the transcoder with
 `TRANSCODER_IMAGE=vambed-neo:local scripts/run.sh`; the defaults need no
