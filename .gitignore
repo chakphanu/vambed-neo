@@ -1,0 +1,9 @@
+.cache/
+.local/*
+!.local/README.md
+build/
+out/
+*.o
+*.wav
+*.pcm
+__pycache__/

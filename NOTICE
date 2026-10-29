@@ -1,0 +1,31 @@
+vambed-neo
+Copyright (C) 2026 vambed-neo contributors
+SPDX-License-Identifier: GPL-3.0-or-later (see LICENSE)
+
+vambed-neo is a software test transcoder. It contains no DVSI code, no DVSI
+firmware and no code derived from any DVSI product. It is provided for
+testing reflectors and for education; audio quality is not a goal.
+
+Components (fetched at the commits pinned in pins.env, not vendored here)
+-----------------------------------------------------------------------
+- mbelib-neo, https://github.com/arancormonk/mbelib-neo
+  GPL-2.0-or-later (project contributions; retained ISC mbelib notices and
+  PFFFT license texts, see its LICENSE and LICENSES/). Used for AMBE+
+  (3600x2400), AMBE+2 (3600x2450) and IMBE (4400) decoding and encoding.
+- codec2, https://github.com/drowe67/codec2
+  LGPL-2.1. Used for Codec2 3200 decoding and encoding.
+
+Protocol
+--------
+The AMBEd wire protocol and its reply layouts follow the xlxd ambed
+(GPL-3.0-or-later, LX3JL and contributors) and the protocol notes of
+dv-testset. No source file of xlxd is copied into this repository.
+
+Patent notice (carried from mbelib-neo)
+---------------------------------------
+Use and distribution of the vocoders may implicate patents. The mbelib-neo
+project has not established third-party patent clearance; educational or
+research use is not asserted as an exemption. AMBE and IMBE may be
+patent-encumbered in some jurisdictions. See mbelib-neo's README ("Patent
+Notice") and its dated patent review in legal/patents.md before using or
+distributing a build of this software. Nothing here is legal advice.
