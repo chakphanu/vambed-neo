@@ -55,14 +55,14 @@ probe and fallback paths.
 Every input is decoded to PCM, then encoded to each requested output, with
 per-stream codec state. Each data request gets exactly one reply at once.
 
-Output is deterministic per stream: the same input stream gives the same
-bytes on every instance, whatever ran before, so a reference/SUT rig can
-compare two instances byte for byte. codec2 draws random phases from one
-process-wide generator (`codec2_rand()`); vambed-neo defines that function
-itself so each stream gets its own generator. This works when libcodec2
-calls it through the PLT, as the image's pinned build does; the startup
-log says `codec2 random phases: per stream (deterministic)` (or `process
-wide` with a library that binds it internally).
+Output is deterministic per stream, Codec2 included, so two transcoders
+fed the same stream give identical bytes in differential tests (the rig's
+reference/SUT compare), whatever each one processed before. codec2 draws
+random phases from one process-wide generator (`codec2_rand()`);
+vambed-neo defines that function itself to give each stream its own
+generator. This needs a libcodec2 that calls it through the PLT, as the
+pinned build does: the image build runs `vambed-neo --check-rng` and fails
+otherwise, and the startup log states the mode.
 
 ## Protocol summary
 

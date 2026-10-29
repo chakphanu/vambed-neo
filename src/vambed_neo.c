@@ -494,6 +494,7 @@ static void usage(FILE *f, const char *prog)
             "  -L, --legacy-only      no CAPS reply, 24 B opens ignored (pre-extension ambed)\n"
             "                                                                     env VAMBED_NEO_LEGACY_ONLY=1\n"
             "  -v, --verbose          log every packet decision                  env VAMBED_NEO_VERBOSE=1\n"
+            "      --check-rng        exit 0 if Codec2 output is deterministic per stream\n"
             "  -h, --help             this text\n"
             "\n"
             "Codecs: 1 AMBE+ (D-STAR), 2 AMBE+2 (DMR/YSF), 3 Codec2 3200 (M17), 4 IMBE (P25),\n"
@@ -576,6 +577,7 @@ static void parse_args(int argc, char **argv)
         {"codecs", required_argument, NULL, 'c'},
         {"legacy-only", no_argument, NULL, 'L'},
         {"verbose", no_argument, NULL, 'v'},
+        {"check-rng", no_argument, NULL, 'R'},
         {"help", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0},
     };
@@ -596,6 +598,14 @@ static void parse_args(int argc, char **argv)
         case 'L': cfg.legacy_only = 1; break;
         case 'v': cfg.verbose = 1; break;
         case 'h': usage(stdout, argv[0]); exit(0);
+        case 'R':
+            /* build gate: Codec2 output must not depend on other streams */
+            if (vn_codec_rng_per_stream()) {
+                puts("codec2 random phases: per stream");
+                exit(0);
+            }
+            puts("codec2 random phases: process wide (codec2_rand not interposed)");
+            exit(1);
         default: usage(stderr, argv[0]); exit(2);
         }
     }

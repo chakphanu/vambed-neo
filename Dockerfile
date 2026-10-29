@@ -37,6 +37,7 @@ COPY Makefile /src/vambed-neo/
 COPY src /src/vambed-neo/src
 RUN ldconfig \
  && PKG_CONFIG_PATH=/usr/local/lib/pkgconfig make -C /src/vambed-neo \
+ && /src/vambed-neo/build/vambed-neo --check-rng \
  && make -C /src/vambed-neo install PREFIX=/usr/local \
  && mkdir -p /out/lib \
  && cp -a /usr/local/lib/libmbe-neo.so* /usr/local/lib/libcodec2.so* /out/lib/
