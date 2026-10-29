@@ -21,6 +21,23 @@ The AMBEd wire protocol and its reply layouts follow the xlxd ambed
 (GPL-3.0-or-later, LX3JL and contributors) and the protocol notes of
 dv-testset. No source file of xlxd is copied into this repository.
 
+DMR AMBE interleave
+-------------------
+The DMR AMBE dibit interleave tables in src/vn_codec.c (dmr_w, dmr_x, dmr_y,
+dmr_z) are the rW, rX, rY, rZ tables of DSD (Digital Speech Decoder),
+https://github.com/szechyjs/dsd, ISC licence:
+  Copyright (C) 2010 DSD Author
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+  THE SOFTWARE IS PROVIDED "AS IS" AND ISC DISCLAIMS ALL WARRANTIES WITH
+  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+  AND FITNESS. IN NO EVENT SHALL ISC BE LIABLE FOR ANY SPECIAL, DIRECT,
+  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+  OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
+
 Patent notice (carried from mbelib-neo)
 ---------------------------------------
 Use and distribution of the vocoders may implicate patents. The mbelib-neo

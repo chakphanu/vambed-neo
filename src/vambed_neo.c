@@ -426,13 +426,18 @@ static void on_control(const uint8_t *p, size_t len, const struct sockaddr_in *f
 
 /* ------------------------------------------------------------------- data */
 
-static void on_data(stream_t *s, const uint8_t *p, size_t len)
+static void on_data(stream_t *s, const uint8_t *p, size_t len, const struct sockaddr_in *from)
 {
     uint8_t reply[2 + MAX_OUTPUTS * (1 + VN_FRAME_MAX)];
     int16_t pcm[VN_PCM_SAMPLES];
     struct sockaddr_in to;
     size_t off = 0;
 
+    if (from->sin_addr.s_addr != s->peer.sin_addr.s_addr) {
+        if (cfg.verbose)
+            logf_("stream %u: data from %s ignored (not the opener)", s->id, addr_str(from));
+        return;
+    }
     if (len != (size_t)(2 + vn_codec_width(s->in)) || p[0] != s->in) {
         if (cfg.verbose)
             logf_("stream %u: unexpected %zu B data packet", s->id, len);
@@ -697,7 +702,7 @@ int main(int argc, char **argv)
             if (pstream[i] == NULL)
                 on_control(buf, (size_t)len, &from);
             else
-                on_data(pstream[i], buf, (size_t)len);
+                on_data(pstream[i], buf, (size_t)len, &from);
         }
 
         t = now_s();

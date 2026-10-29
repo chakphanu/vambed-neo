@@ -85,12 +85,19 @@ Control port (UDP 10100):
 - `AMBEDCS` + LE16 stream id closes a stream (no reply). A stream with no
   data for 3 s is closed too.
 
+Data ports: stream ids run 1..max-streams, so the transcoder uses UDP
+base+1 .. base+max-streams (10101-10116 by default) next to the control
+port; open them all when firewalling or publishing. A data port accepts
+requests only from the IP that opened the stream (and, like the control
+port, only from `--peer` addresses when that list is set).
+
 Data port (base + stream id): request `codec_in, pid, frame`; reply
 `out1, pid, frame1, out2, frame2, ...` in open order. Legacy replies keep
 the reference's fixed three slots: 9/8/11 B for AMBE input, 9/9/11 B for
 Codec2 input, 9/9/8 B for IMBE input (32, 33 and 30 B with xlxd's opens).
 
-The full description is in dv-testset's `docs/protocols/ambed.md`.
+The full description is in dv-testset's
+[docs/protocols/ambed.md](https://github.com/chakphanu/dv-testset/blob/main/docs/protocols/ambed.md).
 
 ## Testing with dv-testset
 

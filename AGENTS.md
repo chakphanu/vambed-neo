@@ -9,7 +9,9 @@ for testing xlxd-style reflectors without DVSI hardware. Flow, not quality.
 - Rules: SPDX header on every source file; ASCII English only, no emoji.
 - No PII: callsigns only N0CALL/N0TEST/XLX999, IPs only 127/8 and 192.0.2/24.
   Run `scripts/pii-check.sh` before every commit (`.local/pii-words` extends it).
-- Clean room: protocol from the xlxd ambed (GPL-3.0) and dv-testset docs;
-  codecs only through the public APIs of mbelib-neo and codec2. Never copy
-  code from closed or differently licensed vocoders.
+- Sources: protocol from the xlxd ambed (GPL-3.0) and dv-testset docs;
+  codecs through the public APIs of mbelib-neo and codec2, plus the DMR
+  interleave tables of DSD (ISC, attributed in NOTICE) and the codec2_rand()
+  override in src/vn_codec.c. Any third-party table or code needs a NOTICE
+  entry. Never copy code from closed or incompatibly licensed vocoders.
 - No secrets, no `rm -rf`, no `docker prune`; never push.

@@ -17,7 +17,9 @@
 #include <codec2/codec2.h>
 #include <mbelib-neo/mbelib.h>
 
-/* DMR AMBE dibit i -> (plane, bit) of its high bit (W, X) and low bit (Y, Z). */
+/* DMR AMBE dibit interleave tables as in DSD (rW, rX, rY, rZ; ISC licence,
+ * see NOTICE): dibit i -> (plane, bit) of its high bit (W, X) and its low
+ * bit (Y, Z). */
 static const uint8_t dmr_w[36] = {
     0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
     0, 1, 0, 1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2 };
@@ -40,7 +42,10 @@ typedef struct {
  * before it. The library calls it through the PLT; this definition takes
  * its place and gives each stream its own generator, which keeps the output
  * of a stream a function of its own input (two instances given the same
- * stream produce the same bytes). */
+ * stream produce the same bytes). The override needs libcodec2 as a shared
+ * library that calls codec2_rand() through the PLT: linking it statically
+ * duplicates the symbol, and a library linked with -Bsymbolic silently binds
+ * its own copy, which `vambed-neo --check-rng` (a build gate) detects. */
 static unsigned long *rng_state;
 static unsigned long rng_spare = 1;
 static unsigned long rng_calls;
